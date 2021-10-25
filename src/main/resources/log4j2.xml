@@ -24,9 +24,9 @@
 
         <!-- ===========================================所有级别日志配置=========================================== -->
         <!-- 日志默认存放路径(所有级别日志) -->
-        <property name="rolling_fileName">${basePath}/all.log</property>
+        <property name="rolling_fileName">logs/all.log</property>
         <!-- 日志默认压缩路径,将超过指定文件大小的日志,自动存入按"年月"建立的文件夹下面并进行压缩,作为存档 -->
-        <property name="rolling_filePattern">${basePath}/%d{yyyy-MM}/all-%d{yyyy-MM-dd-HH}-%i.log.gz</property>
+        <property name="rolling_filePattern">logs/%d{yyyy-MM}/all-%d{yyyy-MM-dd-HH}-%i.log.gz</property>
         <!-- 日志默认同类型日志,同一文件夹下可以存放的数量,不设置此属性则默认为7个,filePattern最后要带%i才会生效 -->
         <property name="rolling_max">500</property>
         <!-- 日志默认同类型日志,多久生成一个新的日志文件,这个配置需要和filePattern结合使用;
@@ -39,9 +39,9 @@
 
         <!-- ============================================Info级别日志============================================ -->
         <!-- Info日志默认存放路径(Info级别日志) -->
-        <property name="info_fileName">${basePath}/info.log</property>
+        <property name="info_fileName">logs/info.log</property>
         <!-- Info日志默认压缩路径,将超过指定文件大小的日志,自动存入按"年月"建立的文件夹下面并进行压缩,作为存档 -->
-        <property name="info_filePattern">${basePath}/%d{yyyy-MM}/info-%d{yyyy-MM-dd}-%i.log.gz</property>
+        <property name="info_filePattern">logs/%d{yyyy-MM}/info-%d{yyyy-MM-dd}-%i.log.gz</property>
         <!-- Info日志默认同一文件夹下可以存放的数量,不设置此属性则默认为7个 -->
         <property name="info_max">100</property>
         <!-- 日志默认同类型日志,多久生成一个新的日志文件,这个配置需要和filePattern结合使用;
@@ -54,9 +54,9 @@
 
         <!-- ============================================Warn级别日志============================================ -->
         <!-- Warn日志默认存放路径(Warn级别日志) -->
-        <property name="warn_fileName">${basePath}/warn.log</property>
+        <property name="warn_fileName">logs/warn.log</property>
         <!-- Warn日志默认压缩路径,将超过指定文件大小的日志,自动存入按"年月"建立的文件夹下面并进行压缩,作为存档 -->
-        <property name="warn_filePattern">${basePath}/%d{yyyy-MM}/warn-%d{yyyy-MM-dd}-%i.log.gz</property>
+        <property name="warn_filePattern">logs/%d{yyyy-MM}/warn-%d{yyyy-MM-dd}-%i.log.gz</property>
         <!-- Warn日志默认同一文件夹下可以存放的数量,不设置此属性则默认为7个 -->
         <property name="warn_max">100</property>
         <!-- 日志默认同类型日志,多久生成一个新的日志文件,这个配置需要和filePattern结合使用;
@@ -69,9 +69,9 @@
 
         <!-- ============================================Error级别日志============================================ -->
         <!-- Error日志默认存放路径(Error级别日志) -->
-        <property name="error_fileName">${basePath}/error.log</property>
+        <property name="error_fileName">logs/error.log</property>
         <!-- Error日志默认压缩路径,将超过指定文件大小的日志,自动存入按"年月"建立的文件夹下面并进行压缩,作为存档 -->
-        <property name="error_filePattern">${basePath}/%d{yyyy-MM}/error-%d{yyyy-MM-dd}-%i.log.gz</property>
+        <property name="error_filePattern">logs/%d{yyyy-MM}/error-%d{yyyy-MM-dd}-%i.log.gz</property>
         <!-- Error日志默认同一文件夹下可以存放的数量,不设置此属性则默认为7个 -->
         <property name="error_max">100</property>
         <!-- 日志默认同类型日志,多久生成一个新的日志文件,这个配置需要和filePattern结合使用;
