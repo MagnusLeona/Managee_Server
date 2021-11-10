@@ -5,6 +5,7 @@ import com.magnus.project.managee.support.dicts.BusinessDict;
 import com.magnus.project.managee.support.dicts.TeamDict;
 import com.magnus.project.managee.support.dicts.UserDict;
 import com.magnus.project.managee.work.entity.Team;
+import com.magnus.project.managee.work.entity.User;
 import com.magnus.project.managee.work.service.BusinessService;
 import com.magnus.project.managee.work.service.TeamBusinessService;
 import com.magnus.project.managee.work.service.TeamUserService;
@@ -36,16 +37,14 @@ public class BusinessUpdate {
 
     // 需求流转（需求递交给其他人） --- 自己不再订阅消息（不再关注需求进度）
     // 将需求流转给其余团队
-    @RequestMapping("/update/business/deliver")
-    public void deliverBusinessToOtherTeam(@RequestBody Map map) {
-        // todo: 获取操作的客户号，流转需求到其余团队仅有团队负责人才可以操作
-        int id = 1; // -- 发起流转的客户号，模拟客户号为1 的用户把需求1流转给客户号为2的用户
+    @RequestMapping("/business/deliver")
+    public void deliverBusinessToOtherTeam(@RequestBody Map map, User user) {
         // 给其余团队递交需求
         Integer targetTeamId = (Integer) map.get(TeamDict.TEAM_ID.getName());  //目标团队id
         Integer businessId = (Integer) map.get(BusinessDict.BUSINESS_ID.getStr());
         // 递交需求表示自己的团队不再关注这个需求，所以需要删掉现有的关系
         // 获取当前用户的id和所在团队
-        Team currTeam = teamUserService.selectTeamByUserId(id);
+        Team currTeam = teamUserService.selectTeamByUserId(user.getUserId());
         int currTeamId = currTeam.getTeamId();
         // 删除当前团队-需求的关系表，同时删除当前团队中所有和这个需求有关系的用户
         teamBusinessService.deleteTeamBusiness(currTeamId, businessId);
@@ -56,8 +55,7 @@ public class BusinessUpdate {
     // 需求下发（需求安排给项目实施牵头人员--此人员暂时为评估者，后续变为项目牵头人） --- 自己的角色变为tracer（跟踪）
     @RequestMapping("/update/business/issue/user")
     @Transactional
-    public void issueBusinessToUsers(@RequestBody Map map) {
-        // todo: 获取当前操作的id
+    public void issueBusinessToUsers(@RequestBody Map map, User user) {
         // 需求下发给团队内其他人员进行牵头，需要进行反馈 --- 下发的时候是否需要收到反馈？怎么样去存储这样一种状态？
         // 当前团队牵头人--每个团队每个需求仅能有一个牵头人
         List<Integer> userList = (List<Integer>) map.get(UserDict.USER_ID_LIST.getStr());
@@ -71,7 +69,8 @@ public class BusinessUpdate {
     }
 
     // 需求指派（指派给某一个团队） --- 权限暂时定位只能业务去操作
-    @RequestMapping("/update/business/assign")
+    @RequestMapping("/business/assign")
+    @Transactional
     public void assignBusiness(@RequestBody Map map) {
         // todo: 权限校验
         // 指派给团队的时候，会自动创建负责人信息为团队负责人
@@ -83,6 +82,7 @@ public class BusinessUpdate {
         teamBusinessService.insertBusinessTeamAsManager(teamId, businessId);
         // 指派需求的时候，设置需求状态为流转中  2
         businessService.updateBusinessStatus(businessId, Constants.BUSINESS_STATUS_ASSIGN);
+        // 需求指派的时候，更新团队-需求表
         // todo: 发消息给订阅的人 --- 更新 通知-用户关系表, 发消息通知
     }
 }

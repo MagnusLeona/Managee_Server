@@ -15,7 +15,9 @@ public enum BusinessDict {
     BUSINESS_EVALUATE_START_TIME("startTime"),
     BUSINESS_EVALUATE_COMMIT_TEST_TIME("testCommitTime"),
     BUSINESS_EVALUATE_FINISH_TEST_TIME("testFinishedTime"),
-    BUSINESS_EVALUATE_PRODUCT_TIME("productTime")
+    BUSINESS_EVALUATE_PRODUCT_TIME("productTime"),
+    BUSINESS_PROJECT_ID("projectId"),
+    BUSINESS_TEST_ID("testId")
     ;
 
     public String str;

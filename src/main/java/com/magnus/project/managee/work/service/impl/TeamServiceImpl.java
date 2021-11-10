@@ -3,6 +3,7 @@ package com.magnus.project.managee.work.service.impl;
 import com.magnus.project.managee.support.constants.Constants;
 import com.magnus.project.managee.support.dicts.TeamDict;
 import com.magnus.project.managee.work.entity.Team;
+import com.magnus.project.managee.work.entity.User;
 import com.magnus.project.managee.work.mapper.TeamMapper;
 import com.magnus.project.managee.work.service.TeamService;
 import org.apache.ibatis.session.SqlSession;
@@ -31,6 +32,7 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public List<Team> selectTeamsById(int id) {
+        List<User> users = teamMapper.selectTeamLeadersByTeamId(1);
         return teamMapper.selectTeamsById(id);
     }
 

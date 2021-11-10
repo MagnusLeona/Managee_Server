@@ -10,7 +10,7 @@ public interface UserService {
 
     public int selectUsersCount();
 
-    public List<User> selectUserById(int id);
+    public User selectUserById(int id);
 
     public List<User> selectUserByName(String name);
 

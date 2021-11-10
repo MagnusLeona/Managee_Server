@@ -1,8 +1,10 @@
 package com.magnus.project.managee.configs.module.mvc.common;
 
 import com.magnus.project.managee.configs.module.mvc.argsresolvers.UserArgumentResolver;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -11,9 +13,14 @@ import java.util.List;
 @Configuration
 public class ManageeArgumentResolvers implements WebMvcConfigurer {
 
+    @Autowired
+    RedisTemplate loginRedisTemplate;
+
     @Bean
     public UserArgumentResolver userArgumentResolver() {
-        return new UserArgumentResolver();
+        UserArgumentResolver userArgumentResolver = new UserArgumentResolver();
+        userArgumentResolver.setRedisTemplate(loginRedisTemplate);
+        return userArgumentResolver;
     }
 
     @Override

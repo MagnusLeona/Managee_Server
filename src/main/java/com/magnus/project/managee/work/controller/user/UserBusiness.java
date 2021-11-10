@@ -1,6 +1,8 @@
 package com.magnus.project.managee.work.controller.user;
 
+import com.magnus.project.managee.support.aop.aspects.annotations.LoginRequired;
 import com.magnus.project.managee.work.entity.Business;
+import com.magnus.project.managee.work.entity.User;
 import com.magnus.project.managee.work.service.UserBusinessService;
 import com.magnus.project.managee.work.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,10 +19,10 @@ public class UserBusiness {
     UserBusinessService userBusinessService;
 
     @RequestMapping("/query/user/business")
-    public List<Business> selectUserBusiness(Map map) {
+    @LoginRequired
+    public List<Business> selectUserBusiness(User user) {
         // 获取userid,根据user_id去查询客户的需求列表
-        // todo: 调用这个交易的客户号作为查询条件
-        List<Business> businesses = userBusinessService.selectBusinessByUserId(1);
+        List<Business> businesses = userBusinessService.selectBusinessByUserId(user.getUserId());
         return businesses;
     };
 }

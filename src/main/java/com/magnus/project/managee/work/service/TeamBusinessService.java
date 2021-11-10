@@ -12,4 +12,8 @@ public interface TeamBusinessService {
     public void insertTeamEvaluateMission(int businessId, int teamId);
 
     public void declineSupportEvaluate(int businessId, int teamId, String reason);
+
+    public void createTestOrder(int businessId, int teamId);
+
+    public void finishTestEvaluate(int businessId);
 }

@@ -5,7 +5,10 @@ import com.magnus.project.managee.support.dicts.CommonDict;
 import com.magnus.project.managee.support.dicts.ResultDict;
 import com.magnus.project.managee.work.entity.User;
 import com.magnus.project.managee.work.service.UserService;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -13,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-public class UserSelect {
+public class UserSelect implements ApplicationContextAware {
     @Autowired
     UserService userService;
 
@@ -25,9 +28,14 @@ public class UserSelect {
      * @return
      */
     @RequestMapping({"/query/users"})
-    public Map<String, Object> selectUsers(@RequestBody Map queryMap) {
-        int page = queryMap.containsKey(CommonDict.PAGE.getName()) ? (int) queryMap.get(CommonDict.PAGE.getName()) : Constants.DEFAULT_PAGE;
-        int pageSize = queryMap.containsKey(CommonDict.PAGE_SIZE.getName()) ? (int) queryMap.get(CommonDict.PAGE_SIZE.getName()) : Constants.DEFAULT_PAGE_SIZE;
+    public Map<String, Object> selectUsers(@RequestBody(required = false) Map queryMap) {
+
+        Object cacheRedisTemplate = applicationContext.getBean("cacheRedisTemplate");
+        Object loginRedisTemplate = applicationContext.getBean("loginRedisTemplate");
+        Object commonRedisTemplate = applicationContext.getBean("commonRedisTemplate");
+
+        int page = queryMap != null && queryMap.containsKey(CommonDict.PAGE.getName()) ? (int) queryMap.get(CommonDict.PAGE.getName()) : Constants.DEFAULT_PAGE;
+        int pageSize = queryMap != null && queryMap.containsKey(CommonDict.PAGE_SIZE.getName()) ? (int) queryMap.get(CommonDict.PAGE_SIZE.getName()) : Constants.DEFAULT_PAGE_SIZE;
         int start = (page - 1) * pageSize;
         List<User> users = userService.selectUsers(start, pageSize);
         int total = userService.selectUsersCount();
@@ -40,11 +48,7 @@ public class UserSelect {
 
     @RequestMapping("/query/user/id/{id}")
     public User selectUserById(@PathVariable int id) {
-        List<User> maps = userService.selectUserById(id);
-        if (maps.isEmpty() || maps == null) {
-            return null;
-        }
-        User user = maps.get(0);
+        User user = userService.selectUserById(id);
         return user;
     }
 
@@ -52,5 +56,12 @@ public class UserSelect {
     public List<User> selectUserByName(@PathVariable String name) {
         List<User> maps = userService.selectUserByName(name);
         return maps;
+    }
+
+    public ApplicationContext applicationContext;
+
+    @Override
+    public void setApplicationContext(ApplicationContext context) throws BeansException {
+        applicationContext = context;
     }
 }

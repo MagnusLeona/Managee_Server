@@ -2,6 +2,7 @@ package com.magnus.project.managee.work.service.impl;
 
 import com.magnus.project.managee.support.constants.Constants;
 import com.magnus.project.managee.work.entity.User;
+import com.magnus.project.managee.work.mapper.MissionMapper;
 import com.magnus.project.managee.work.mapper.TeamBusinessMapper;
 import com.magnus.project.managee.work.mapper.TeamUserMapper;
 import com.magnus.project.managee.work.mapper.UserBusinessMapper;
@@ -24,6 +25,9 @@ public class TeamBusinessServiceImpl implements TeamBusinessService {
     @Autowired
     TeamUserMapper teamUserMapper;
 
+    @Autowired
+    MissionMapper missionMapper;
+
     @Override
     public void insertTeamBusiness(int teamId, int businessId, int teamRole) {
         teamBusinessMapper.insertBusinessTeam(teamId, businessId, teamRole);
@@ -32,7 +36,7 @@ public class TeamBusinessServiceImpl implements TeamBusinessService {
     @Override
     public void insertBusinessTeamAsManager(int teamId, int businessId) {
         // 设置团队为总负责团队
-        teamBusinessMapper.insertBusinessTeam(teamId, businessId, Constants.BUSIENSS_TEAM_ROLE_MANAGER);
+        teamBusinessMapper.insertBusinessTeam(teamId, businessId, Constants.BUSINESS_TEAM_ROLE_MANAGER);
         // 查询所有的团队负责人
         List<User> users = teamUserMapper.queryUserInTeamByTeamId(teamId, Constants.TEAM_USER_ROLE_LEADER);
         for (User user : users) {
@@ -70,5 +74,21 @@ public class TeamBusinessServiceImpl implements TeamBusinessService {
     public void declineSupportEvaluate(int businessId, int teamId, String reason) {
         // 拒绝需求
         teamBusinessMapper.updateBusinessEvaluateTeamAsDecline(businessId, teamId, reason);
+    }
+
+    @Override
+    public void createTestOrder(int businessId, int teamId) {
+        teamBusinessMapper.insertBusinessTeamAsTest(businessId, teamId, Constants.BUSINESS_STATUS_TEST_EVALUATE);
+        // 将测试团队负责人添加到需求测试人员中
+        List<User> users = teamUserMapper.queryUserInTeamByTeamId(teamId, Constants.TEAM_USER_ROLE_LEADER);
+        for (User user : users) {
+            userBusinessMapper.insertBusinessUser(businessId, user.getUserId(), Constants.BUSINESS_USER_ROLE_TEST);
+        }
+    }
+
+    @Override
+    public void finishTestEvaluate(int businessId) {
+        // 更新需求-测试表中的状态为评估完成
+        teamBusinessMapper.updateBusinessTeamTestStatus(businessId, Constants.BUSINESS_STATUS_TEST_EVALUATE_FINISHED);
     }
 }

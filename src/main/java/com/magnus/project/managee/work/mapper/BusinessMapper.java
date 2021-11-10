@@ -52,12 +52,24 @@ public interface BusinessMapper {
     public List<Business> selectBusinessByName(String name);
 
     @Insert("insert into managee_business(name,code,status,time_create,time_accept,time_start,time_submit,time_deploy) values(#{businessName},#{code},#{businessStatus},#{createTime},#{acceptTime},#{startTime},#{submitTime},#{deployTime})")
-    @Options(useGeneratedKeys = true, keyColumn = "id", keyProperty = "id")
+    @Options( useGeneratedKeys = true, keyColumn = "id", keyProperty = "id")
     public void insertBusiness(Map map);
 
     @Delete("delete from managee_business where id=#{id}")
     public void deleteBusinessById(int id);
 
-    @Update("alter table managee_business set status=#{status} where id=#{businessId}")
+    @Update("update managee_business set status=#{status} where id=#{businessId}")
     public void updateBusinessStatus(int businessId, int status);
+
+    @Insert("insert into managee_business_project(business_id, code, name) value(#{businessId},#{code},#{name})")
+    @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "projectId")
+    public void createBusinessProject(Map map);
+
+    @Insert("insert into managee_business_project_team(project_id, team_id) value(#{projectId},#{teamId})")
+    public void createBusinessProjectTeam(int projectId, int teamId);
+
+//    public List<Map> selectBusinessProject(int businessId, int userId);
+
+    @Update("update managee_business_project set status=#{status} where id=#{projectId}")
+    public void updateBusinessProjectStatus(int projectId, int status);
 }
