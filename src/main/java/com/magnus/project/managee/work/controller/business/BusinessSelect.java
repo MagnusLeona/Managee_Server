@@ -1,9 +1,11 @@
 package com.magnus.project.managee.work.controller.business;
 
+import com.magnus.project.managee.support.aop.aspects.annotations.LoginRequired;
 import com.magnus.project.managee.support.constants.Constants;
 import com.magnus.project.managee.support.dicts.CommonDict;
 import com.magnus.project.managee.support.dicts.ResultDict;
 import com.magnus.project.managee.work.entity.Business;
+import com.magnus.project.managee.work.entity.User;
 import com.magnus.project.managee.work.service.BusinessService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,8 +27,9 @@ public class BusinessSelect {
     @Autowired
     BusinessService businessService;
 
-    @RequestMapping({"/query/businesses"})
-    public Map selectBusinesses(@RequestBody Map queryMap) {
+    @RequestMapping({"/query/business"})
+    @LoginRequired
+    public Map selectBusinesses(@RequestBody(required = false) Map queryMap) {
         int page = queryMap.containsKey(CommonDict.PAGE.getName()) ? (int) queryMap.get(CommonDict.PAGE.getName()) : Constants.DEFAULT_PAGE;
         int pageSize = queryMap.containsKey(CommonDict.PAGE_SIZE.getName()) ? (int) queryMap.get(CommonDict.PAGE_SIZE.getName()) : Constants.DEFAULT_PAGE_SIZE;
         // 根据页码和页数去查询数据
@@ -40,14 +43,14 @@ public class BusinessSelect {
         return resultMap;
     }
 
-    @RequestMapping({"/query/businesses/name/{name}"})
+    @RequestMapping({"/query/business/name/{name}"})
     public Business selectBusinessesByName(@PathVariable String name) {
         // 根据给出的名称进行模糊查找；
 
         return null;
     }
 
-    @RequestMapping({"/query/businesses/id/{id}"})
+    @RequestMapping({"/query/business/id/{id}"})
     public Business selectBusinessesById(@PathVariable Integer id) {
         List<Business> businesses = businessService.selectBusinessesById(id);
         if (businesses.isEmpty()) {

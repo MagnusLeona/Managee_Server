@@ -23,4 +23,7 @@ public interface TeamUserMapper {
             @Result(column = "team_id", property = "teamId")
     })
     public List<Team> selectTeamByUserId(int userId);
+
+    @Select("select team_id from managee_team_user where user_id=#{userId}")
+    public int selectTeamIdByUserId(int userId);
 }

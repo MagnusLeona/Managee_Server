@@ -42,12 +42,10 @@ public interface UserBusinessMapper {
     @Update("alter table managee_business_user set role=#{role} where user_id=#{userId} and business_id=#{businessId}")
     public void updateBusinessUserRole(int userId, int businessId, int role);
 
-    @Update("alter table managee_team_user set user_role=#{userRole} where user_id in (" +
-            "select user_id from managee_team_user where team_id=(" +
-            "select team_id from managee_team_user where user_id=#{userId} and user_role=#{oldRole}" +
-            ")" +
+    @Update("update managee_business_user set user_role=#{businessRoleTracer} where user_id in (" +
+            "select user_id managee_team_user where user_role=#{teamRoleManager} and team_id=#{teamId}" +
             ")")
-    public void updateTeamManagerRoleToTracerInBusiness(int userId, int targetRole, int currRole);
+    public void updateTeamManagerRoleToTracerInBusiness(int userId, int teamId, int businessRoleTracer, int teamRoleManager);
 
     @Insert("insert into managee_business_pre_evaluate_user values(#{businessId}, #{userId}, #{status})")
     public void insertBusinessPreEvaluateUser(int businessId, int userId, int status);
@@ -56,7 +54,7 @@ public interface UserBusinessMapper {
     public void insertNewBusinessPreEvaluateProblem(int businessId, int userId, String content);
 
     @Update("alter table managee_business_pre_evaluate_user set status=#{status} where business_id=#{businessId} and user_id=#{userId}")
-    public void updateBusinessEvaluateStatus(int businessId, int userId, int status);
+    public void updateBusinessPreEvaluateStatus(int businessId, int userId, int status);
 
     @Insert("insert into managee_business_evaluate_user(business_id, user_id, evaluate_status) value(#{businessId}, #{userId}, #{status})")
     public void insertBusinessEvaluateUser(int businessId, int userId, int status);
@@ -64,6 +62,15 @@ public interface UserBusinessMapper {
     @Select("select user_id from managee_business_pre_evaluate_user where business_id=#{businessId}")
     public List<Integer> selectBusinessPreEvaluateUsers(int businessId);
 
-    @Update("alter table managee_business_evaluate_user set evaluate_status=#{status} where business_id=#{businessId} and user_id=#{userId}")
-    public void modifyBusinessEvaluateTime(int businessId, int userId, int status);
+    @Update("alter table managee_business_project set status=#{status} where business_id=#{businessId} and user_id=#{userId}")
+    public void updateBusinessProjectStatus(int businessId, int userId, int status);
+
+    @Insert("insert into managee_business_project_dev_evaluate(user_id, project_id, status) value(#{userId},#{projectId},#{status})")
+    public void insertBusinessProjectDevEvaluate(int projectId, int userId, int status);
+
+    @Update("alter table managee_business_project_dev_evaluate set status=#{status} where project_id=#{projectId} and user_id=#{userId}")
+    public void updateBusinessProjectDevEvaluate(int projectId, int userId, int status);
+
+    @Delete("delete from managee_business_project_dev_evaluate where project_id=#{projectId}")
+    public void deleteBusinessProjectDevEvaluate(int projectId);
 }

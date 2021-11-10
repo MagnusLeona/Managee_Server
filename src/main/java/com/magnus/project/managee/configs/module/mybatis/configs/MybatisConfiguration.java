@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.redis.core.RedisTemplate;
 
 import javax.sql.DataSource;
 
@@ -33,8 +34,6 @@ public class MybatisConfiguration {
         // Mybatis构建类
         SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
         sqlSessionFactoryBean.setDataSource(dataSource);
-        PerpetualCache perpetualCache = new PerpetualCache("cache");
-        sqlSessionFactoryBean.setCache(perpetualCache);
         SpringManagedTransactionFactory springManagedTransactionFactory = new SpringManagedTransactionFactory();
         Environment environment = new Environment("1", springManagedTransactionFactory, dataSource);
         configuration.setEnvironment(environment);

@@ -25,4 +25,10 @@ public interface UserBusinessService {
     public void initBusinessEvaluate(int businessId);
 
     public void commitBusinessEvaluate(Map map);
+
+    public void assignBusinessProjectEvaluate(int projectId, List<Integer> userList);
+
+    public void finishBusinessProjectDevEvaluate(int projectId, int userId);
+
+    public void finishBusinessProjectManagerEvaluate(int projectId, int userId);
 }

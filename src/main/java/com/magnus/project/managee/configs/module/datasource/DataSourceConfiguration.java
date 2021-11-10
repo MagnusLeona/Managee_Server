@@ -11,6 +11,7 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.TransactionManager;
 
 import javax.sql.DataSource;
+import java.text.SimpleDateFormat;
 import java.util.Properties;
 
 @Configuration
@@ -60,5 +61,10 @@ public class DataSourceConfiguration {
     @Bean
     public TransactionManager transactionManager() {
         return new DataSourceTransactionManager(dataSource());
+    }
+
+    @Bean
+    public SimpleDateFormat dateFormat() {
+        return new SimpleDateFormat("yyyy-MM-dd");
     }
 }

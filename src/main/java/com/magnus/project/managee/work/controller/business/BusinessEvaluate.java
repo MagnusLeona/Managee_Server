@@ -1,14 +1,13 @@
 package com.magnus.project.managee.work.controller.business;
 
+import com.magnus.project.managee.support.aop.aspects.annotations.LoginRequired;
 import com.magnus.project.managee.support.constants.Constants;
 import com.magnus.project.managee.support.dicts.BusinessDict;
 import com.magnus.project.managee.support.dicts.TeamDict;
 import com.magnus.project.managee.support.dicts.UserDict;
 import com.magnus.project.managee.work.entity.Team;
-import com.magnus.project.managee.work.service.BusinessService;
-import com.magnus.project.managee.work.service.TeamBusinessService;
-import com.magnus.project.managee.work.service.TeamUserService;
-import com.magnus.project.managee.work.service.UserBusinessService;
+import com.magnus.project.managee.work.entity.User;
+import com.magnus.project.managee.work.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,13 +33,16 @@ public class BusinessEvaluate {
     @Autowired
     BusinessService businessService;
 
-    @RequestMapping("/update/business/accept/id/{businessId}")
-    public void acceptBusiness(@PathVariable int businessId) {
-        // todo：获取当前操作的用户id
-        int userId = 1;
+    @Autowired
+    MissionService missionService;
+
+    @RequestMapping("/business/accept/id/{businessId}")
+    @LoginRequired
+    public void acceptBusiness(@PathVariable int businessId, User user) {
+        int userId = user.getUserId();
         // 团队负责人接受需求委托
-        // 更新需求状态为需求预评估-4
-        businessService.updateBusinessStatus(businessId, Constants.BUSINESS_STATUS_PRE_EVALUATE);
+        // 更新需求状态为 待安排预评估-3
+        businessService.updateBusinessStatus(businessId, Constants.BUSINESS_STATUS_WAIT_FOR_PRE_EVALUATE);
         // 获取当前用户所处的团队id
         Team team = teamUserService.selectTeamByUserId(userId);
         // 接受需求的时候，需求状态已经改为预评估，则需要维护团队-预评估状态表
@@ -64,17 +66,18 @@ public class BusinessEvaluate {
         // todo: 给相关团队负责人发送通知： 收到需要配合的需求
     }
 
-    @RequestMapping("/preevaluate/business/arrange/manager")
-    public void arrangeBusinessManager(@RequestBody Map map) {
-        // todo:获取当前操作的用户id
-        int userId = 1;
+    // 设置需求在自己团队中的负责人
+    @RequestMapping("/business/preevaluate/arrange/manager")
+    @LoginRequired
+    public void arrangeBusinessManager(@RequestBody Map map, User user) {
+        int userId = user.getUserId();
         int managerUserId = (int) map.get(UserDict.USER_ID.getStr());
         int businessId = (int) map.get(BusinessDict.BUSINESS_ID.getStr());
         userBusinessService.setBusinessManager(userId, businessId, managerUserId);
     }
 
     // 需求牵头人设定评估人员
-    @RequestMapping("/preevaluate/business/arrange/evaluater")
+    @RequestMapping("/business/preevaluate/arrange/evaluater")
     public void arrangeBusinessEvaluater(@RequestBody Map map) {
         List<Integer> userIdList = (List<Integer>) map.get(UserDict.USER_ID_LIST.getStr());
         Integer businessId = (Integer) map.get(BusinessDict.BUSINESS_ID.getStr());
@@ -84,7 +87,7 @@ public class BusinessEvaluate {
         }
     }
 
-    @RequestMapping("/preevaluate/business/decline}")
+    @RequestMapping("/business/preevaluate/decline}")
     public void declineBusinessSupport(@RequestBody Map map) {
         // todo：获取这个客户的id/所在团队
         int id = 1;
@@ -135,28 +138,77 @@ public class BusinessEvaluate {
         // 将所有涉及的预评估人员身份转移到正式评估表中
         userBusinessService.initBusinessEvaluate(businessId);
         // todo: 发送通知给所有的预评估人员，开始正式评估反馈排期
+        // 更新需求-实施单元表
         // todo: 更新待办事项到用户-待办事项表中
     }
 
     @RequestMapping("/evaluate/business/create/project")
-    public void addNewProject(@RequestBody Map map) {
-        // 新增实施单元
-
+    public void assignBusinessEvalauteToDevs(@RequestBody Map map) {
+        // 新增实施单元-挂载到需求上的项目,并分发给开发进行评估
+        // todo：获取操作的userId
+        int userId = 3;
+        // 将需求分配给相关开发人员进行任务添加
+        // 获取分发的人员列表
+        List<Integer> userIdList = (List<Integer>) map.get(UserDict.USER_ID_LIST.getStr());
+        // 每个人员需要分配对应的project_id
+        int projectId = (int) map.get(BusinessDict.BUSINESS_PROJECT_ID.getStr());
+        userBusinessService.assignBusinessProjectEvaluate(projectId, userIdList);
+        // todo:消息通知各个开发人员进行评估
     }
 
+    @RequestMapping("/evaluate/business/create/mission")
+    public void createProjectMission(@RequestBody Map map) {
+        // 新增各种需求
+        // 获取开发人列表
+        /*
+        {
+            userIdList: [],  -- 开发人员列表
+            projectId: 1 -- projectId
+        }
+         */
+        missionService.insertMissionDevs(map);
+    }
+
+    @RequestMapping("/evaluate/business/commit/dev/evaluate")
+    public void commitDevBusinessProjectEvaluate(@RequestBody Map map) {
+        // 开发确认评估完成
+        // todo:获取操作此交易的客户号
+        int userId = 3;
+        int projectId = (int) map.get(BusinessDict.BUSINESS_PROJECT_ID.getStr());
+        userBusinessService.finishBusinessProjectDevEvaluate(projectId, userId);
+        // todo: 给负责人发送通知
+        // todo: 分析是否已经完成了全部的评估
+    }
+
+    public void commitManagerBusinessProjectEvaluate(@RequestBody Map map) {
+        // 完成此需求实施单元的整体评估
+        int userId = 3;
+        int projectId = (int) map.get(BusinessDict.BUSINESS_PROJECT_ID.getStr());
+        // 修改project的状态，并删除businessProjectEvalaute表中的相关评估状态
+        userBusinessService.finishBusinessProjectManagerEvaluate(projectId, userId);
+    }
+
+    @RequestMapping("/evaluate/business/finish")
     public void commitEvaluate(@RequestBody Map map) {
-        // 提交正式评估的结果,评估者的角度
+        // 提交正式评估的结果，每个评估者的角度
         // todo: 获取到操作的userId
         int userId = 1;
         // 更新需求评估日期
         map.put(UserDict.USER_ID.getStr(), userId);
         userBusinessService.commitBusinessEvaluate(map);
-        // todo: 数据判空，任何数据都要有值
-        // todo: 通知
-        // todo: 校验是否所有模块都已经完成评估
     }
 
+    @RequestMapping("/evaluate/business/apply/test")
     public void deliverEvaluateToTestTeam(@RequestBody Map map) {
-        // 将需求评估内容提交到测试团队进行评估
+        // 将需求评估内容提交到测试团队进行评估 --- 由需求总牵头人负责
+        // 只需要告诉测试团队需求编号，测试团队直接获取表中的数据
+        // todo: 维护一个测试团队的表？
+        // 先更新测试表
+        int businessId = (int) map.get(BusinessDict.BUSINESS_ID.getStr());
+        int teamId = (int) map.get(TeamDict.TEAM_ID.getName());
+        teamBusinessService.createTestOrder(businessId, teamId);
+        // todo: 发送通知给测试团队
+        // 设置需求状态为测试评估中
+        businessService.updateBusinessStatus(businessId, Constants.BUSINESS_STATUS_TEST_EVALUATE);
     }
 }

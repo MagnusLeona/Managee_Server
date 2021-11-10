@@ -1,12 +1,14 @@
 package com.magnus.project.managee.work.mapper;
 
+import com.magnus.project.managee.configs.module.mybatis.configs.MybatisRedisCache;
 import com.magnus.project.managee.work.entity.User;
 import org.apache.ibatis.annotations.*;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
-@CacheNamespace
+@CacheNamespace(implementation = MybatisRedisCache.class, flushInterval = 100)
 public interface UserMapper {
 
     @Select("select * from managee_user order by id asc limit #{start},#{size}")
