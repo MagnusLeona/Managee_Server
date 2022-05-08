@@ -42,7 +42,7 @@ public class LoginCheckAspects {
             HttpServletRequest request = requestAttributes.getRequest();
             // 判断是否登录
             String cookieValueByKey = CookieUtils.getCookieValueByKey(UserDict.USER_LOGIN_TOKEN.getStr(), request);
-            if(ManageeUtils.isNullOrEmpty(cookieValueByKey) || !loginRedisTemplate.hasKey(cookieValueByKey)) {
+            if(ManageeUtils.isNullOrEmpty(cookieValueByKey) || Boolean.FALSE.equals(loginRedisTemplate.hasKey(cookieValueByKey))) {
                 throw new Exception("login required");
             }
         }

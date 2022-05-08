@@ -81,7 +81,7 @@ public class RedisConfiguration {
         redisStandaloneConfiguration.setHostName(hostname);
         redisStandaloneConfiguration.setPort(port);
         LettuceClientConfiguration lettuceClientConfiguration = LettuceClientConfiguration.builder().readFrom(ReadFrom.REPLICA_PREFERRED).commandTimeout(Duration.ofSeconds(timeout)).build();
-        LettuceConnectionFactory lettuceConnectionFactory = new LettuceConnectionFactory(redisStandaloneConfiguration, lettuceClientConfiguration);
+            LettuceConnectionFactory lettuceConnectionFactory = new LettuceConnectionFactory(redisStandaloneConfiguration, lettuceClientConfiguration);
         lettuceConnectionFactory.setDatabase(db);
         return lettuceConnectionFactory;
     }
